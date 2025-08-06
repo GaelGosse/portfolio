@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from "react";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as THREE from "three";
 
 export default function Home() {
@@ -6,6 +8,8 @@ export default function Home() {
 
 	useEffect(() => {
 		if (!mountRef.current) return;
+
+		mountRef.current.innerHTML = "";
 
 		// Création de la scène
 		const scene = new THREE.Scene();
@@ -15,20 +19,37 @@ export default function Home() {
 		renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
 		mountRef.current.appendChild(renderer.domElement);
 
-		// Cube
-		const geometry = new THREE.BoxGeometry();
-		const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-		const cube = new THREE.Mesh(geometry, material);
-		scene.add(cube);
+		const loader = new GLTFLoader();
+		// Lumière directionnelle
+		const light = new THREE.DirectionalLight(0xffffff, 0.3);
+		light.position.set(2, 2, 5);
+		scene.add(light);
 
-		camera.position.z = 2;
+		// Lumière ambiante (faible, douce)
+		const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+		scene.add(ambientLight);
+		camera.position.set(0, 1, 5);
 
-		// Animation
+		loader.load(
+			'/models/scene7.glb', // URL publique
+			(gltf) => {
+				scene.add(gltf.scene);
+			},
+			undefined,
+			(error) => {
+				console.error("Erreur lors du chargement du modèle :", error);
+			}
+		);
+
+		// const gridHelper = new THREE.GridHelper(10, 10);
+		// scene.add(gridHelper);
+
+		const controls = new OrbitControls(camera, renderer.domElement);
+		controls.enableDamping = true;
+
 		const animate = () => {
-			cube.rotation.x += 0.01;
-			cube.rotation.y += 0.05;
-			renderer.render(scene, camera);
 			requestAnimationFrame(animate);
+			renderer.render(scene, camera);
 		};
 		animate();
 
@@ -39,13 +60,13 @@ export default function Home() {
 	}, []);
 
 	return (
-		// <div style={{ width: "100vw", height: "100vh", backgroundColor: "#000" }} ref={mountRef}>
-		// 	{/* Three.js canvas mounted ici */}
-		// </div>
 		<nav>
 			<a>Home</a>
 			<a>Work</a>
 			<a>Contact</a>
+			<div style={{ width: "100vw", height: "100vh", backgroundColor: "#000" }} ref={mountRef}>
+			{/* Three.js canvas mounted ici */}
+			</div>
 		</nav>
 	);
 }
