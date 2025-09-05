@@ -13,6 +13,7 @@ app.use("/api", homeRoutes);
 
 // Fichiers React (compilés dans client/dist)
 app.use(express.static(path.join(__dirname, "client", "dist")));
+app.use(express.static(path.join(__dirname, "client", "css")));
 app.use('/models', express.static(path.join(__dirname, 'models')));
 
 app.get("*", (req, res) => {

@@ -53270,12 +53270,23 @@ void main() {
       scene.add(light);
       const ambientLight = new AmbientLight(16777215, 0.35);
       scene.add(ambientLight);
-      camera.position.set(0, 1, 5);
       loader.load(
-        "/models/scene7.fbx",
+        "/models/scene.gltf",
         // URL publique
         (gltf) => {
           scene.add(gltf.scene);
+          const expCam = gltf.cameras?.[0];
+          if (expCam) {
+            camera.position.copy(expCam.getWorldPosition(new Vector3()));
+            camera.quaternion.copy(expCam.getWorldQuaternion(new Quaternion()));
+            if (expCam instanceof PerspectiveCamera) {
+              camera.fov = expCam.fov;
+              camera.near = expCam.near;
+              camera.far = expCam.far;
+              camera.updateProjectionMatrix();
+            }
+            controls.update();
+          }
         },
         void 0,
         (error) => {
@@ -53289,11 +53300,16 @@ void main() {
         renderer.render(scene, camera);
       };
       animate();
+      controls.enableZoom = true;
+      controls.zoomSpeed = 1;
+      controls.minDistance = 0.5;
+      controls.maxDistance = 50;
+      controls.update();
       return () => {
         mountRef.current?.removeChild(renderer.domElement);
       };
     }, []);
-    return /* @__PURE__ */ import_react.default.createElement("nav", null, /* @__PURE__ */ import_react.default.createElement("a", null, "Home"), /* @__PURE__ */ import_react.default.createElement("a", null, "Work"), /* @__PURE__ */ import_react.default.createElement("a", null, "Contact"), /* @__PURE__ */ import_react.default.createElement("div", { style: { width: "100vw", height: "100vh", backgroundColor: "#000" }, ref: mountRef }));
+    return /* @__PURE__ */ import_react.default.createElement("div", { style: { width: "100vw", height: "100vh", backgroundColor: "#000" }, ref: mountRef });
   }
   var import_react;
   var init_Home = __esm({

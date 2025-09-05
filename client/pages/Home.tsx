@@ -28,12 +28,38 @@ export default function Home() {
 		// Lumière ambiante (faible, douce)
 		const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
 		scene.add(ambientLight);
-		camera.position.set(0, 1, 5);
 
 		loader.load(
-			'/models/scene7.glb', // URL publique
+			'/models/scene.gltf', // URL publique
 			(gltf) => {
 				scene.add(gltf.scene);
+
+				const expCam = gltf.cameras?.[0] as THREE.PerspectiveCamera | undefined;
+				if (expCam) {
+					camera.position.copy(expCam.getWorldPosition(new THREE.Vector3()));
+					camera.quaternion.copy(expCam.getWorldQuaternion(new THREE.Quaternion()));
+					if (expCam instanceof THREE.PerspectiveCamera) {
+							camera.fov = expCam.fov;
+							camera.near = expCam.near;
+							camera.far  = expCam.far;
+							camera.updateProjectionMatrix();
+					}
+					// controls.target.set(0,0,0); // ou un point de ton modèle
+					controls.update();
+				}
+
+				// if (gltf.cameras && gltf.cameras.length > 0) {
+				// 	const exportedCamera = gltf.cameras[0];
+				// 	console.log("Caméra importée :", exportedCamera);
+
+				// 	// Remplace la caméra par celle du modèle
+				// 	if (exportedCamera && exportedCamera instanceof THREE.Camera) {
+				// 		camera.position.copy(exportedCamera.position);
+				// 		camera.quaternion.copy(exportedCamera.quaternion);
+				// 		camera.updateProjectionMatrix();
+
+				// 	}
+				// }
 			},
 			undefined,
 			(error) => {
@@ -53,6 +79,13 @@ export default function Home() {
 		};
 		animate();
 
+		controls.enableZoom = true;          // (par défaut true)
+		controls.zoomSpeed = 1.0;            // accélère/ralentit le zoom
+		controls.minDistance = 0.5;          // distance mini caméra–cible
+		controls.maxDistance = 50;           // distance maxi
+		controls.update();
+
+
 		// Cleanup
 		return () => {
 			mountRef.current?.removeChild(renderer.domElement);
@@ -60,13 +93,8 @@ export default function Home() {
 	}, []);
 
 	return (
-		<nav>
-			<a>Home</a>
-			<a>Work</a>
-			<a>Contact</a>
-			<div style={{ width: "100vw", height: "100vh", backgroundColor: "#000" }} ref={mountRef}>
-			{/* Three.js canvas mounted ici */}
-			</div>
-		</nav>
+		<div style={{ width: "100vw", height: "100vh", backgroundColor: "#000" }} ref={mountRef}>
+		{/* Three.js canvas mounted ici */}
+		</div>
 	);
 }

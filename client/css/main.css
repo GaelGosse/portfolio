@@ -1,0 +1,41 @@
+*,
+::before,
+::after {
+	box-sizing: border-box;
+	outline: none;
+	border: none;
+
+	text-decoration: none;
+	list-style: none;
+	letter-spacing: 1px;
+
+	margin: 0;
+	padding: 0;
+
+	transition: ease 0.3s !important;
+}
+:root{
+	--nav-width: 380px;
+	--header-h: 75px;
+}
+/* scroll bar */
+::-webkit-scrollbar {
+	width: 14px;
+}
+::-webkit-scrollbar-track {
+	background: rgb(33,33,33);
+}
+::-webkit-scrollbar-thumb {
+	background: rgb(180, 180, 180);
+	box-shadow: 0 0 20px .05em rgb(180, 180, 180);
+
+}
+::-webkit-scrollbar-thumb:hover {
+	background: white;
+	box-shadow: 0 0 20px .3em white;
+}
+
+header
+{
+	background: red;
+}
