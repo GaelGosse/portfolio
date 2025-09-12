@@ -18,7 +18,8 @@ esbuild.build({
 }).then(() => {
 	// Vérifie que client/dist existe
 	const distDir = path.join(__dirname, "client", "dist");
-	if (!fs.existsSync(distDir)) {
+	if (!fs.existsSync(distDir))
+	{
 		fs.mkdirSync(distDir, { recursive: true });
 	}
 
@@ -27,9 +28,20 @@ esbuild.build({
 		path.join(__dirname, "client", "index.html"),
 		path.join(distDir, "index.html")
 	);
+	const src = path.join(__dirname, "client", "styles");
+	const dst = path.join(__dirname, "client", "dist", "styles");
+	if (fs.existsSync(src))
+	{
+		fs.mkdirSync(dst, { recursive: true });
+		for (const f of fs.readdirSync(src))
+		{
+			fs.copyFileSync(path.join(src, f), path.join(dst, f));
+		}
+	}
 
 	console.log("✅ Build complet : bundle.js + index.html");
-}).catch((err) => {
+}).catch((err) =>
+{
 	console.error("❌ Build échoué :", err);
 	process.exit(1);
 });
