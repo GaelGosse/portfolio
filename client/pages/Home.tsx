@@ -5,6 +5,7 @@ import * as THREE from "three";
 
 export default function Home() {
 	const mountRef = useRef<HTMLDivElement>(null);
+	const planetRef = useRef<THREE.Object3D | null>(null);
 
 	useEffect(() => {
 		if (!mountRef.current) return;
@@ -34,6 +35,13 @@ export default function Home() {
 			(gltf) => {
 				scene.add(gltf.scene);
 
+				const planet = gltf.scene.getObjectByName("Planet") as THREE.Object3D;
+				const items  = ["CameraObj","BookObj","LaptopObj"]; // noms exacts à adapter
+				items.forEach((name) => {
+					const child = gltf.scene.getObjectByName(name);
+					if (child && planet) planet.attach(child); // conserve la pose monde
+				});
+
 				const expCam = gltf.cameras?.[0] as THREE.PerspectiveCamera | undefined;
 				if (expCam) {
 					camera.position.copy(expCam.getWorldPosition(new THREE.Vector3()));
@@ -44,22 +52,20 @@ export default function Home() {
 							camera.far  = expCam.far;
 							camera.updateProjectionMatrix();
 					}
-					// controls.target.set(0,0,0); // ou un point de ton modèle
 					controls.update();
 				}
 
-				// if (gltf.cameras && gltf.cameras.length > 0) {
-				// 	const exportedCamera = gltf.cameras[0];
-				// 	console.log("Caméra importée :", exportedCamera);
+				// position
+				// console.log("gltf.scene")
+				// console.log(gltf.scene.children[0].children)
+				// let a = (gltf.scene.children[0].children.find(e => e.name == "Water"))
+				// console.log(a, a.position)
+				camera.position.set(0.3, 2, 5);      // x lateral move ,y height,z distance w planet
 
-				// 	// Remplace la caméra par celle du modèle
-				// 	if (exportedCamera && exportedCamera instanceof THREE.Camera) {
-				// 		camera.position.copy(exportedCamera.position);
-				// 		camera.quaternion.copy(exportedCamera.quaternion);
-				// 		camera.updateProjectionMatrix();
+				camera.rotation.set(0, 0, 0);
 
-				// 	}
-				// }
+				camera.fov = 40;                   // plus petit = plus serré
+				camera.updateProjectionMatrix();
 			},
 			undefined,
 			(error) => {
@@ -71,15 +77,38 @@ export default function Home() {
 		// scene.add(gridHelper);
 
 		const controls = new OrbitControls(camera, renderer.domElement);
-		controls.enableDamping = true;
+		controls.enableDamping = false;
+
+		// scroll -> pivot planet
+		let targetRotY = 0;
+		const speed = 0.15;
+
+		const onWheel = (e: WheelEvent) => {
+			e.preventDefault();
+			console.log("onwheel listener")
+			const dir = Math.sign(e.deltaY);
+			targetRotY += -dir * speed; // inverser si besoin
+		}
 
 		const animate = () => {
 			requestAnimationFrame(animate);
+			if (planetRef.current) {
+				// rotation douce
+				console.log("rotation animate")
+				const current = planetRef.current.rotation.y;
+				planetRef.current.rotation.y += (targetRotY - current) * 0.08;
+			}
 			renderer.render(scene, camera);
 		};
 		animate();
 
-		controls.enableZoom = true;          // (par défaut true)
+;
+
+		renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
+
+		controls.enableRotate = false; // interdit rotation
+		controls.enablePan = false;
+		controls.enableZoom = false;         // (par défaut true)
 		controls.zoomSpeed = 1.0;            // accélère/ralentit le zoom
 		controls.minDistance = 0.5;          // distance mini caméra–cible
 		controls.maxDistance = 50;           // distance maxi
@@ -89,11 +118,12 @@ export default function Home() {
 		// Cleanup
 		return () => {
 			mountRef.current?.removeChild(renderer.domElement);
+			renderer.domElement.removeEventListener("wheel", onWheel);
 		};
 	}, []);
 
 	return (
-		<div style={{ width: "100vw", height: "100vh", backgroundColor: "#000" }} ref={mountRef}>
+		<div style={{ width: "100%", height: "100vh", backgroundColor: "#000" }} ref={mountRef}>
 		{/* Three.js canvas mounted ici */}
 		</div>
 	);

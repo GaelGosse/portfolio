@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
+const library_1 = __importDefault(require("./library"));
+const lib = new library_1.default();
 const app = (0, express_1.default)();
 const PORT = 3000;
 // Middleware JSON
@@ -19,5 +21,5 @@ app.get("*", (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "client", "dist", "index.html"));
 });
 app.listen(PORT, () => {
-    console.log(`http://localhost:${PORT}`);
+    console.log(`${lib.now()} http://localhost:${PORT}`);
 });

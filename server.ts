@@ -1,5 +1,7 @@
 import express from "express";
 import path from "path";
+import Library from "./library";
+const lib = new Library();
 
 const app = express();
 const PORT = 3000;
@@ -20,5 +22,5 @@ app.get("*", (req, res) => {
 });
 
 app.listen(PORT, () => {
-	console.log(`http://localhost:${PORT}`);
+	console.log(`${lib.now()} http://localhost:${PORT}`);
 });

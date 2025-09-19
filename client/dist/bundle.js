@@ -53256,6 +53256,7 @@ void main() {
   // client/pages/Home.tsx
   function Home() {
     const mountRef = (0, import_react.useRef)(null);
+    const planetRef = (0, import_react.useRef)(null);
     (0, import_react.useEffect)(() => {
       if (!mountRef.current) return;
       mountRef.current.innerHTML = "";
@@ -53275,6 +53276,12 @@ void main() {
         // URL publique
         (gltf) => {
           scene.add(gltf.scene);
+          const planet = gltf.scene.getObjectByName("Planet");
+          const items = ["CameraObj", "BookObj", "LaptopObj"];
+          items.forEach((name) => {
+            const child = gltf.scene.getObjectByName(name);
+            if (child && planet) planet.attach(child);
+          });
           const expCam = gltf.cameras?.[0];
           if (expCam) {
             camera.position.copy(expCam.getWorldPosition(new Vector3()));
@@ -53287,6 +53294,10 @@ void main() {
             }
             controls.update();
           }
+          camera.position.set(0.3, 2, 5);
+          camera.rotation.set(0, 0, 0);
+          camera.fov = 40;
+          camera.updateProjectionMatrix();
         },
         void 0,
         (error) => {
@@ -53294,22 +53305,40 @@ void main() {
         }
       );
       const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
+      controls.enableDamping = false;
+      let targetRotY = 0;
+      const speed = 0.15;
+      const onWheel = (e) => {
+        e.preventDefault();
+        console.log("onwheel listener");
+        const dir = Math.sign(e.deltaY);
+        targetRotY += -dir * speed;
+      };
       const animate = () => {
         requestAnimationFrame(animate);
+        if (planetRef.current) {
+          console.log("rotation animate");
+          const current = planetRef.current.rotation.y;
+          planetRef.current.rotation.y += (targetRotY - current) * 0.08;
+        }
         renderer.render(scene, camera);
       };
       animate();
-      controls.enableZoom = true;
+      ;
+      renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
+      controls.enableRotate = false;
+      controls.enablePan = false;
+      controls.enableZoom = false;
       controls.zoomSpeed = 1;
       controls.minDistance = 0.5;
       controls.maxDistance = 50;
       controls.update();
       return () => {
         mountRef.current?.removeChild(renderer.domElement);
+        renderer.domElement.removeEventListener("wheel", onWheel);
       };
     }, []);
-    return /* @__PURE__ */ import_react.default.createElement("div", { style: { width: "100vw", height: "100vh", backgroundColor: "#000" }, ref: mountRef });
+    return /* @__PURE__ */ import_react.default.createElement("div", { style: { width: "100%", height: "100vh", backgroundColor: "#000" }, ref: mountRef });
   }
   var import_react;
   var init_Home = __esm({

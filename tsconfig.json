@@ -7,5 +7,5 @@
 		"esModuleInterop": true,
 		"strict": true
 	},
-	"include": ["server.ts", "routes", "controllers"]
+	"include": ["server.ts", "routes", "controllers", "library.ts"]
 }
