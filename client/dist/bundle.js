@@ -22001,13 +22001,13 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     return p;
   }
   function checkIntersection$1(object, material, raycaster, ray, pA, pB, pC, point) {
-    let intersect;
+    let intersect2;
     if (material.side === BackSide) {
-      intersect = ray.intersectTriangle(pC, pB, pA, true, point);
+      intersect2 = ray.intersectTriangle(pC, pB, pA, true, point);
     } else {
-      intersect = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point);
+      intersect2 = ray.intersectTriangle(pA, pB, pC, material.side === FrontSide, point);
     }
-    if (intersect === null) return null;
+    if (intersect2 === null) return null;
     _intersectionPointWorld.copy(point);
     _intersectionPointWorld.applyMatrix4(object.matrixWorld);
     const distance = raycaster.ray.origin.distanceTo(_intersectionPointWorld);
@@ -22251,6 +22251,22 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
       return new trackType(json.name, json.times, json.values, json.interpolation);
     }
   }
+  function ascSort(a, b) {
+    return a.distance - b.distance;
+  }
+  function intersect(object, raycaster, intersects, recursive) {
+    let propagate = true;
+    if (object.layers.test(raycaster.layers)) {
+      const result = object.raycast(raycaster, intersects);
+      if (result === false) propagate = false;
+    }
+    if (propagate === true && recursive === true) {
+      const children = object.children;
+      for (let i = 0, l = children.length; i < l; i++) {
+        intersect(children[i], raycaster, intersects, true);
+      }
+    }
+  }
   function getByteLength(width, height, format, type) {
     const typeByteLength = getTextureTypeByteLength(type);
     switch (format) {
@@ -22358,7 +22374,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     }
     throw new Error(`Unknown texture type ${type}.`);
   }
-  var REVISION, MOUSE, TOUCH, CullFaceNone, CullFaceBack, CullFaceFront, PCFShadowMap, PCFSoftShadowMap, VSMShadowMap, FrontSide, BackSide, DoubleSide, NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending, AddEquation, SubtractEquation, ReverseSubtractEquation, MinEquation, MaxEquation, ZeroFactor, OneFactor, SrcColorFactor, OneMinusSrcColorFactor, SrcAlphaFactor, OneMinusSrcAlphaFactor, DstAlphaFactor, OneMinusDstAlphaFactor, DstColorFactor, OneMinusDstColorFactor, SrcAlphaSaturateFactor, ConstantColorFactor, OneMinusConstantColorFactor, ConstantAlphaFactor, OneMinusConstantAlphaFactor, NeverDepth, AlwaysDepth, LessDepth, LessEqualDepth, EqualDepth, GreaterEqualDepth, GreaterDepth, NotEqualDepth, MultiplyOperation, MixOperation, AddOperation, NoToneMapping, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, CustomToneMapping, AgXToneMapping, NeutralToneMapping, AttachedBindMode, DetachedBindMode, UVMapping, CubeReflectionMapping, CubeRefractionMapping, EquirectangularReflectionMapping, EquirectangularRefractionMapping, CubeUVReflectionMapping, RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping, NearestFilter, NearestMipmapNearestFilter, NearestMipmapLinearFilter, LinearFilter, LinearMipmapNearestFilter, LinearMipmapLinearFilter, UnsignedByteType, ByteType, ShortType, UnsignedShortType, IntType, UnsignedIntType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt248Type, UnsignedInt5999Type, AlphaFormat, RGBFormat, RGBAFormat, DepthFormat, DepthStencilFormat, RedFormat, RedIntegerFormat, RGFormat, RGIntegerFormat, RGBAIntegerFormat, RGB_S3TC_DXT1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGB_PVRTC_4BPPV1_Format, RGB_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_PVRTC_2BPPV1_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGBA_ETC2_EAC_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_10x10_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_BPTC_Format, RGB_BPTC_SIGNED_Format, RGB_BPTC_UNSIGNED_Format, RED_RGTC1_Format, SIGNED_RED_RGTC1_Format, RED_GREEN_RGTC2_Format, SIGNED_RED_GREEN_RGTC2_Format, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, ZeroCurvatureEnding, ZeroSlopeEnding, WrapAroundEnding, NormalAnimationBlendMode, TrianglesDrawMode, TriangleStripDrawMode, TriangleFanDrawMode, BasicDepthPacking, RGBADepthPacking, TangentSpaceNormalMap, ObjectSpaceNormalMap, NoColorSpace, SRGBColorSpace, LinearSRGBColorSpace, LinearTransfer, SRGBTransfer, KeepStencilOp, AlwaysStencilFunc, NeverCompare, LessCompare, EqualCompare, LessEqualCompare, GreaterCompare, NotEqualCompare, GreaterEqualCompare, AlwaysCompare, StaticDrawUsage, GLSL3, WebGLCoordinateSystem, WebGPUCoordinateSystem, EventDispatcher, _lut, _seed, DEG2RAD, RAD2DEG, MathUtils, Vector2, Quaternion, Vector3, _vector$c, _quaternion$4, Matrix3, _m3, _cache, LINEAR_REC709_TO_XYZ, XYZ_TO_LINEAR_REC709, ColorManagement, _canvas, ImageUtils, _sourceId, Source, _textureId, _tempVec3, Texture, Vector4, RenderTarget, WebGLRenderTarget, DataArrayTexture, Data3DTexture, Box3, _points, _vector$b, _box$4, _v0$2, _v1$7, _v2$4, _f0, _f1, _f2, _center, _extents, _triangleNormal, _testAxis, _box$3, _v1$6, _v2$3, Sphere, _vector$a, _segCenter, _segDir, _diff, _edge1, _edge2, _normal$1, Ray, Matrix4, _v1$5, _m1$2, _zero, _one, _x, _y, _z, _matrix$2, _quaternion$3, Euler, Layers, _object3DId, _v1$4, _q1, _m1$1, _target, _position$3, _scale$2, _quaternion$2, _xAxis, _yAxis, _zAxis, _addedEvent, _removedEvent, _childaddedEvent, _childremovedEvent, Object3D, _v0$1, _v1$3, _v2$2, _v3$2, _vab, _vac, _vbc, _vap, _vbp, _vcp, _v40, _v41, _v42, Triangle, _colorKeywords, _hslA, _hslB, Color, _color, _materialId, Material, MeshBasicMaterial, _vector$9, _vector2$1, _id$2, BufferAttribute, Uint16BufferAttribute, Uint32BufferAttribute, Float32BufferAttribute, _id$1, _m1, _obj, _offset, _box$2, _boxMorphTargets, _vector$8, BufferGeometry, _inverseMatrix$3, _ray$3, _sphere$6, _sphereHitAt, _vA$1, _vB$1, _vC$1, _tempA, _morphA, _intersectionPoint, _intersectionPointWorld, Mesh, BoxGeometry, UniformsUtils, default_vertex, default_fragment, ShaderMaterial, Camera, _v3$1, _minTarget, _maxTarget, PerspectiveCamera, fov, aspect, CubeCamera, CubeTexture, WebGLCubeRenderTarget, Group, _moveEvent, WebXRController, Scene, InterleavedBuffer, _vector$7, InterleavedBufferAttribute, _basePosition, _skinIndex, _skinWeight, _vector3, _matrix4, _vertex, _sphere$5, _inverseMatrix$2, _ray$2, SkinnedMesh, Bone, DataTexture, _offsetMatrix, _identityMatrix, Skeleton, InstancedBufferAttribute, _instanceLocalMatrix, _instanceWorldMatrix, _instanceIntersects, _box3, _identity, _mesh$1, _sphere$4, InstancedMesh, _vector1, _vector2, _normalMatrix, Plane, _sphere$3, _defaultSpriteCenter, _vector$6, Frustum, LineBasicMaterial, _vStart, _vEnd, _inverseMatrix$1, _ray$1, _sphere$1, _intersectPointOnRay, _intersectPointOnSegment, Line, _start, _end, LineSegments, LineLoop, PointsMaterial, _inverseMatrix, _ray, _sphere, _position$2, Points, DepthTexture, PlaneGeometry, MeshStandardMaterial, MeshPhysicalMaterial, MeshDepthMaterial, MeshDistanceMaterial, Interpolant, CubicInterpolant, LinearInterpolant, DiscreteInterpolant, KeyframeTrack, BooleanKeyframeTrack, ColorKeyframeTrack, NumberKeyframeTrack, QuaternionLinearInterpolant, QuaternionKeyframeTrack, StringKeyframeTrack, VectorKeyframeTrack, AnimationClip, Cache, LoadingManager, DefaultLoadingManager, Loader, loading, HttpError, FileLoader, _loading, ImageLoader, TextureLoader, Light, _projScreenMatrix$1, _lightPositionWorld$1, _lookTarget$1, LightShadow, SpotLightShadow, SpotLight, _projScreenMatrix, _lightPositionWorld, _lookTarget, PointLightShadow, PointLight, OrthographicCamera, DirectionalLightShadow, DirectionalLight, AmbientLight, LoaderUtils, _errorMap, ImageBitmapLoader, ArrayCamera, _RESERVED_CHARS_RE, _reservedRe, _wordChar, _wordCharOrDot, _directoryRe, _nodeRe, _objectRe, _propertyRe, _trackRe, _supportedObjectNames, Composite, PropertyBinding, _controlInterpolantsResultBuffer, Spherical, Controls;
+  var REVISION, MOUSE, TOUCH, CullFaceNone, CullFaceBack, CullFaceFront, PCFShadowMap, PCFSoftShadowMap, VSMShadowMap, FrontSide, BackSide, DoubleSide, NoBlending, NormalBlending, AdditiveBlending, SubtractiveBlending, MultiplyBlending, CustomBlending, AddEquation, SubtractEquation, ReverseSubtractEquation, MinEquation, MaxEquation, ZeroFactor, OneFactor, SrcColorFactor, OneMinusSrcColorFactor, SrcAlphaFactor, OneMinusSrcAlphaFactor, DstAlphaFactor, OneMinusDstAlphaFactor, DstColorFactor, OneMinusDstColorFactor, SrcAlphaSaturateFactor, ConstantColorFactor, OneMinusConstantColorFactor, ConstantAlphaFactor, OneMinusConstantAlphaFactor, NeverDepth, AlwaysDepth, LessDepth, LessEqualDepth, EqualDepth, GreaterEqualDepth, GreaterDepth, NotEqualDepth, MultiplyOperation, MixOperation, AddOperation, NoToneMapping, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, CustomToneMapping, AgXToneMapping, NeutralToneMapping, AttachedBindMode, DetachedBindMode, UVMapping, CubeReflectionMapping, CubeRefractionMapping, EquirectangularReflectionMapping, EquirectangularRefractionMapping, CubeUVReflectionMapping, RepeatWrapping, ClampToEdgeWrapping, MirroredRepeatWrapping, NearestFilter, NearestMipmapNearestFilter, NearestMipmapLinearFilter, LinearFilter, LinearMipmapNearestFilter, LinearMipmapLinearFilter, UnsignedByteType, ByteType, ShortType, UnsignedShortType, IntType, UnsignedIntType, FloatType, HalfFloatType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedInt248Type, UnsignedInt5999Type, AlphaFormat, RGBFormat, RGBAFormat, DepthFormat, DepthStencilFormat, RedFormat, RedIntegerFormat, RGFormat, RGIntegerFormat, RGBAIntegerFormat, RGB_S3TC_DXT1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGB_PVRTC_4BPPV1_Format, RGB_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_PVRTC_2BPPV1_Format, RGB_ETC1_Format, RGB_ETC2_Format, RGBA_ETC2_EAC_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_10x10_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_BPTC_Format, RGB_BPTC_SIGNED_Format, RGB_BPTC_UNSIGNED_Format, RED_RGTC1_Format, SIGNED_RED_RGTC1_Format, RED_GREEN_RGTC2_Format, SIGNED_RED_GREEN_RGTC2_Format, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, ZeroCurvatureEnding, ZeroSlopeEnding, WrapAroundEnding, NormalAnimationBlendMode, TrianglesDrawMode, TriangleStripDrawMode, TriangleFanDrawMode, BasicDepthPacking, RGBADepthPacking, TangentSpaceNormalMap, ObjectSpaceNormalMap, NoColorSpace, SRGBColorSpace, LinearSRGBColorSpace, LinearTransfer, SRGBTransfer, KeepStencilOp, AlwaysStencilFunc, NeverCompare, LessCompare, EqualCompare, LessEqualCompare, GreaterCompare, NotEqualCompare, GreaterEqualCompare, AlwaysCompare, StaticDrawUsage, GLSL3, WebGLCoordinateSystem, WebGPUCoordinateSystem, EventDispatcher, _lut, _seed, DEG2RAD, RAD2DEG, MathUtils, Vector2, Quaternion, Vector3, _vector$c, _quaternion$4, Matrix3, _m3, _cache, LINEAR_REC709_TO_XYZ, XYZ_TO_LINEAR_REC709, ColorManagement, _canvas, ImageUtils, _sourceId, Source, _textureId, _tempVec3, Texture, Vector4, RenderTarget, WebGLRenderTarget, DataArrayTexture, Data3DTexture, Box3, _points, _vector$b, _box$4, _v0$2, _v1$7, _v2$4, _f0, _f1, _f2, _center, _extents, _triangleNormal, _testAxis, _box$3, _v1$6, _v2$3, Sphere, _vector$a, _segCenter, _segDir, _diff, _edge1, _edge2, _normal$1, Ray, Matrix4, _v1$5, _m1$2, _zero, _one, _x, _y, _z, _matrix$2, _quaternion$3, Euler, Layers, _object3DId, _v1$4, _q1, _m1$1, _target, _position$3, _scale$2, _quaternion$2, _xAxis, _yAxis, _zAxis, _addedEvent, _removedEvent, _childaddedEvent, _childremovedEvent, Object3D, _v0$1, _v1$3, _v2$2, _v3$2, _vab, _vac, _vbc, _vap, _vbp, _vcp, _v40, _v41, _v42, Triangle, _colorKeywords, _hslA, _hslB, Color, _color, _materialId, Material, MeshBasicMaterial, _vector$9, _vector2$1, _id$2, BufferAttribute, Uint16BufferAttribute, Uint32BufferAttribute, Float32BufferAttribute, _id$1, _m1, _obj, _offset, _box$2, _boxMorphTargets, _vector$8, BufferGeometry, _inverseMatrix$3, _ray$3, _sphere$6, _sphereHitAt, _vA$1, _vB$1, _vC$1, _tempA, _morphA, _intersectionPoint, _intersectionPointWorld, Mesh, BoxGeometry, UniformsUtils, default_vertex, default_fragment, ShaderMaterial, Camera, _v3$1, _minTarget, _maxTarget, PerspectiveCamera, fov, aspect, CubeCamera, CubeTexture, WebGLCubeRenderTarget, Group, _moveEvent, WebXRController, Scene, InterleavedBuffer, _vector$7, InterleavedBufferAttribute, _basePosition, _skinIndex, _skinWeight, _vector3, _matrix4, _vertex, _sphere$5, _inverseMatrix$2, _ray$2, SkinnedMesh, Bone, DataTexture, _offsetMatrix, _identityMatrix, Skeleton, InstancedBufferAttribute, _instanceLocalMatrix, _instanceWorldMatrix, _instanceIntersects, _box3, _identity, _mesh$1, _sphere$4, InstancedMesh, _vector1, _vector2, _normalMatrix, Plane, _sphere$3, _defaultSpriteCenter, _vector$6, Frustum, LineBasicMaterial, _vStart, _vEnd, _inverseMatrix$1, _ray$1, _sphere$1, _intersectPointOnRay, _intersectPointOnSegment, Line, _start, _end, LineSegments, LineLoop, PointsMaterial, _inverseMatrix, _ray, _sphere, _position$2, Points, DepthTexture, PlaneGeometry, MeshStandardMaterial, MeshPhysicalMaterial, MeshDepthMaterial, MeshDistanceMaterial, Interpolant, CubicInterpolant, LinearInterpolant, DiscreteInterpolant, KeyframeTrack, BooleanKeyframeTrack, ColorKeyframeTrack, NumberKeyframeTrack, QuaternionLinearInterpolant, QuaternionKeyframeTrack, StringKeyframeTrack, VectorKeyframeTrack, AnimationClip, Cache, LoadingManager, DefaultLoadingManager, Loader, loading, HttpError, FileLoader, _loading, ImageLoader, TextureLoader, Light, _projScreenMatrix$1, _lightPositionWorld$1, _lookTarget$1, LightShadow, SpotLightShadow, SpotLight, _projScreenMatrix, _lightPositionWorld, _lookTarget, PointLightShadow, PointLight, OrthographicCamera, DirectionalLightShadow, DirectionalLight, AmbientLight, LoaderUtils, _errorMap, ImageBitmapLoader, ArrayCamera, _RESERVED_CHARS_RE, _reservedRe, _wordChar, _wordCharOrDot, _directoryRe, _nodeRe, _objectRe, _propertyRe, _trackRe, _supportedObjectNames, Composite, PropertyBinding, _controlInterpolantsResultBuffer, _matrix, Raycaster, Spherical, Controls;
   var init_three_core = __esm({
     "node_modules/three/build/three.core.js"() {
       REVISION = "178";
@@ -35609,10 +35625,10 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
             _mesh$1.matrixWorld = _instanceWorldMatrix;
             _mesh$1.raycast(raycaster, _instanceIntersects);
             for (let i = 0, l = _instanceIntersects.length; i < l; i++) {
-              const intersect = _instanceIntersects[i];
-              intersect.instanceId = instanceId;
-              intersect.object = this;
-              intersects.push(intersect);
+              const intersect2 = _instanceIntersects[i];
+              intersect2.instanceId = instanceId;
+              intersect2.object = this;
+              intersects.push(intersect2);
             }
             _instanceIntersects.length = 0;
           }
@@ -36208,32 +36224,32 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
             for (let i = start, l = end - 1; i < l; i += step) {
               const a = index.getX(i);
               const b = index.getX(i + 1);
-              const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, i);
-              if (intersect) {
-                intersects.push(intersect);
+              const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, i);
+              if (intersect2) {
+                intersects.push(intersect2);
               }
             }
             if (this.isLineLoop) {
               const a = index.getX(end - 1);
               const b = index.getX(start);
-              const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, end - 1);
-              if (intersect) {
-                intersects.push(intersect);
+              const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, a, b, end - 1);
+              if (intersect2) {
+                intersects.push(intersect2);
               }
             }
           } else {
             const start = Math.max(0, drawRange.start);
             const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
             for (let i = start, l = end - 1; i < l; i += step) {
-              const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, i, i + 1, i);
-              if (intersect) {
-                intersects.push(intersect);
+              const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, i, i + 1, i);
+              if (intersect2) {
+                intersects.push(intersect2);
               }
             }
             if (this.isLineLoop) {
-              const intersect = checkIntersection(this, raycaster, _ray$1, localThresholdSq, end - 1, start, end - 1);
-              if (intersect) {
-                intersects.push(intersect);
+              const intersect2 = checkIntersection(this, raycaster, _ray$1, localThresholdSq, end - 1, start, end - 1);
+              if (intersect2) {
+                intersects.push(intersect2);
               }
             }
           }
@@ -39549,6 +39565,129 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         ]
       ];
       _controlInterpolantsResultBuffer = new Float32Array(1);
+      _matrix = /* @__PURE__ */ new Matrix4();
+      Raycaster = class {
+        /**
+         * Constructs a new raycaster.
+         *
+         * @param {Vector3} origin - The origin vector where the ray casts from.
+         * @param {Vector3} direction - The (normalized) direction vector that gives direction to the ray.
+         * @param {number} [near=0] - All results returned are further away than near. Near can't be negative.
+         * @param {number} [far=Infinity] - All results returned are closer than far. Far can't be lower than near.
+         */
+        constructor(origin, direction, near = 0, far = Infinity) {
+          this.ray = new Ray(origin, direction);
+          this.near = near;
+          this.far = far;
+          this.camera = null;
+          this.layers = new Layers();
+          this.params = {
+            Mesh: {},
+            Line: { threshold: 1 },
+            LOD: {},
+            Points: { threshold: 1 },
+            Sprite: {}
+          };
+        }
+        /**
+         * Updates the ray with a new origin and direction by copying the values from the arguments.
+         *
+         * @param {Vector3} origin - The origin vector where the ray casts from.
+         * @param {Vector3} direction - The (normalized) direction vector that gives direction to the ray.
+         */
+        set(origin, direction) {
+          this.ray.set(origin, direction);
+        }
+        /**
+         * Uses the given coordinates and camera to compute a new origin and direction for the internal ray.
+         *
+         * @param {Vector2} coords - 2D coordinates of the mouse, in normalized device coordinates (NDC).
+         * X and Y components should be between `-1` and `1`.
+         * @param {Camera} camera - The camera from which the ray should originate.
+         */
+        setFromCamera(coords, camera) {
+          if (camera.isPerspectiveCamera) {
+            this.ray.origin.setFromMatrixPosition(camera.matrixWorld);
+            this.ray.direction.set(coords.x, coords.y, 0.5).unproject(camera).sub(this.ray.origin).normalize();
+            this.camera = camera;
+          } else if (camera.isOrthographicCamera) {
+            this.ray.origin.set(coords.x, coords.y, (camera.near + camera.far) / (camera.near - camera.far)).unproject(camera);
+            this.ray.direction.set(0, 0, -1).transformDirection(camera.matrixWorld);
+            this.camera = camera;
+          } else {
+            console.error("THREE.Raycaster: Unsupported camera type: " + camera.type);
+          }
+        }
+        /**
+         * Uses the given WebXR controller to compute a new origin and direction for the internal ray.
+         *
+         * @param {WebXRController} controller - The controller to copy the position and direction from.
+         * @return {Raycaster} A reference to this raycaster.
+         */
+        setFromXRController(controller) {
+          _matrix.identity().extractRotation(controller.matrixWorld);
+          this.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+          this.ray.direction.set(0, 0, -1).applyMatrix4(_matrix);
+          return this;
+        }
+        /**
+         * The intersection point of a raycaster intersection test.
+         * @typedef {Object} Raycaster~Intersection
+         * @property {number} distance - The distance from the ray's origin to the intersection point.
+         * @property {number} distanceToRay -  Some 3D objects e.g. {@link Points} provide the distance of the
+         * intersection to the nearest point on the ray. For other objects it will be `undefined`.
+         * @property {Vector3} point - The intersection point, in world coordinates.
+         * @property {Object} face - The face that has been intersected.
+         * @property {number} faceIndex - The face index.
+         * @property {Object3D} object - The 3D object that has been intersected.
+         * @property {Vector2} uv - U,V coordinates at point of intersection.
+         * @property {Vector2} uv1 - Second set of U,V coordinates at point of intersection.
+         * @property {Vector3} uv1 - Interpolated normal vector at point of intersection.
+         * @property {number} instanceId - The index number of the instance where the ray
+         * intersects the {@link InstancedMesh}.
+         */
+        /**
+         * Checks all intersection between the ray and the object with or without the
+         * descendants. Intersections are returned sorted by distance, closest first.
+         *
+         * `Raycaster` delegates to the `raycast()` method of the passed 3D object, when
+         * evaluating whether the ray intersects the object or not. This allows meshes to respond
+         * differently to ray casting than lines or points.
+         *
+         * Note that for meshes, faces must be pointed towards the origin of the ray in order
+         * to be detected; intersections of the ray passing through the back of a face will not
+         * be detected. To raycast against both faces of an object, you'll want to set  {@link Material#side}
+         * to `THREE.DoubleSide`.
+         *
+         * @param {Object3D} object - The 3D object to check for intersection with the ray.
+         * @param {boolean} [recursive=true] - If set to `true`, it also checks all descendants.
+         * Otherwise it only checks intersection with the object.
+         * @param {Array<Raycaster~Intersection>} [intersects=[]] The target array that holds the result of the method.
+         * @return {Array<Raycaster~Intersection>} An array holding the intersection points.
+         */
+        intersectObject(object, recursive = true, intersects = []) {
+          intersect(object, this, intersects, recursive);
+          intersects.sort(ascSort);
+          return intersects;
+        }
+        /**
+         * Checks all intersection between the ray and the objects with or without
+         * the descendants. Intersections are returned sorted by distance, closest first.
+         *
+         * @param {Array<Object3D>} objects - The 3D objects to check for intersection with the ray.
+         * @param {boolean} [recursive=true] - If set to `true`, it also checks all descendants.
+         * Otherwise it only checks intersection with the object.
+         * @param {Array<Raycaster~Intersection>} [intersects=[]] The target array that holds the result of the method.
+         * @return {Array<Raycaster~Intersection>} An array holding the intersection points.
+         */
+        intersectObjects(objects, recursive = true, intersects = []) {
+          for (let i = 0, l = objects.length; i < l; i++) {
+            intersect(objects[i], this, intersects, recursive);
+          }
+          intersects.sort(ascSort);
+          return intersects;
+        }
+      };
       Spherical = class {
         /**
          * Constructs a new spherical.
@@ -53258,41 +53397,127 @@ void main() {
     const mountRef = (0, import_react.useRef)(null);
     const planetRef = (0, import_react.useRef)(null);
     (0, import_react.useEffect)(() => {
-      if (!mountRef.current) return;
+      if (!mountRef.current)
+        return;
       mountRef.current.innerHTML = "";
       const scene = new Scene();
-      const camera = new PerspectiveCamera(75, mountRef.current.clientWidth / mountRef.current.clientHeight, 0.1, 1e3);
+      const camera = new PerspectiveCamera(
+        75,
+        mountRef.current.clientWidth / mountRef.current.clientHeight,
+        0.1,
+        1e3
+      );
       const renderer = new WebGLRenderer({ antialias: true });
       renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
       mountRef.current.appendChild(renderer.domElement);
-      const loader = new GLTFLoader();
       const light = new DirectionalLight(16777215, 0.3);
       light.position.set(2, 2, 5);
       scene.add(light);
-      const ambientLight = new AmbientLight(16777215, 0.35);
-      scene.add(ambientLight);
+      scene.add(new AmbientLight(16777215, 0.35));
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = false;
+      controls.enableRotate = false;
+      controls.enablePan = false;
+      controls.enableZoom = false;
+      controls.zoomSpeed = 1;
+      controls.minDistance = 0.5;
+      controls.maxDistance = 50;
+      controls.update();
+      const raycaster = new Raycaster();
+      const mouse = new Vector2();
+      let hoveredObj = null;
+      const onMouseMove2 = (e) => {
+        mouse.x = e.clientX / window.innerWidth * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      };
+      renderer.domElement.addEventListener("mousemove", onMouseMove2);
+      let targetRotY = 0;
+      const speed = 0.15;
+      const onWheel = (e) => {
+        e.preventDefault();
+        const dir = Math.sign(e.deltaY);
+        targetRotY += -dir * speed;
+      };
+      renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
+      const effects = {
+        Photo: (obj) => {
+          const photo = obj.getObjectByName("Photo");
+          if (!obj.userData.light) {
+            const flash = new PointLight(16777215, 5, 5);
+            let x_photo = photo?.position.x;
+            console.log(`\u{1F680} ~ x_photo:`, x_photo);
+            let y_photo = photo?.position.y;
+            console.log(`\u{1F680} ~ y_photo:`, y_photo);
+            let z_photo = photo?.position.z;
+            console.log(`\u{1F680} ~ z_photo:`, z_photo);
+            obj.add(flash);
+            flash.position.set(y_photo, x_photo, z_photo);
+            obj.userData.light = flash;
+          }
+          const light2 = obj.userData.light;
+          light2.intensity = 100;
+          setTimeout(() => {
+            light2.intensity = 0;
+          }, 100);
+        },
+        Toolbox: (obj) => {
+          const tlbx = obj.getObjectByName("Toolbox");
+          console.log(obj.children);
+          if (tlbx)
+            tlbx.children[0].rotation.x -= 0.2;
+        },
+        Stadium: (obj) => {
+          if (!obj.userData.confetti) {
+            const confetti = new Points(
+              new BufferGeometry().setFromPoints(
+                Array.from(
+                  { length: 200 },
+                  () => new Vector3(
+                    (Math.random() - 0.5) * 5,
+                    Math.random() * 2,
+                    (Math.random() - 0.5) * 5
+                  )
+                )
+              ),
+              new PointsMaterial({ color: 16711680, size: 0.05 })
+            );
+            obj.add(confetti);
+            obj.userData.confetti = confetti;
+            setTimeout(() => {
+              obj.remove(confetti);
+              obj.userData.confetti = null;
+            }, 500);
+          }
+        },
+        Cube3D: (obj) => {
+          if (!obj.userData.t)
+            obj.userData.t = Math.PI;
+          obj.userData.t += 0.04;
+          const cube = obj.getObjectByName("Cube3D");
+          if (cube) {
+            console.log(`\u{1F680} ~ obj.userData.t:`, obj.userData.t, Math.cos(obj.userData.t) * 0.05);
+            cube.position.z = 0.05 + Math.cos(obj.userData.t) * 0.05;
+            setTimeout(() => {
+              cube.position.z = 0;
+            }, 1e3);
+          }
+        }
+      };
+      const items = ["Stadium", "Photo", "Shell", "Cube3D", "Toolbox"];
+      const loader = new GLTFLoader();
       loader.load(
-        "/models/scene.gltf",
+        "/models/scene12.glb",
         // URL publique
         (gltf) => {
           scene.add(gltf.scene);
-          const planet = gltf.scene.getObjectByName("Planet");
-          const items = ["CameraObj", "BookObj", "LaptopObj"];
-          items.forEach((name) => {
-            const child = gltf.scene.getObjectByName(name);
-            if (child && planet) planet.attach(child);
-          });
-          const expCam = gltf.cameras?.[0];
-          if (expCam) {
-            camera.position.copy(expCam.getWorldPosition(new Vector3()));
-            camera.quaternion.copy(expCam.getWorldQuaternion(new Quaternion()));
-            if (expCam instanceof PerspectiveCamera) {
-              camera.fov = expCam.fov;
-              camera.near = expCam.near;
-              camera.far = expCam.far;
-              camera.updateProjectionMatrix();
-            }
-            controls.update();
+          const planet = gltf.scene.getObjectByName("Earth");
+          if (planet) {
+            planetRef.current = planet;
+            items.forEach((name) => {
+              const child = gltf.scene.getObjectByName(name);
+              if (child && planet)
+                planet.add(child);
+            });
           }
           camera.position.set(0.3, 2, 5);
           camera.rotation.set(0, 0, 0);
@@ -53304,35 +53529,45 @@ void main() {
           console.error("Erreur lors du chargement du mod\xE8le :", error);
         }
       );
-      const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = false;
-      let targetRotY = 0;
-      const speed = 0.15;
-      const onWheel = (e) => {
-        e.preventDefault();
-        console.log("onwheel listener");
-        const dir = Math.sign(e.deltaY);
-        targetRotY += -dir * speed;
-      };
+      let s = /* @__PURE__ */ new Set();
       const animate = () => {
         requestAnimationFrame(animate);
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        if (intersects.length > 0) {
+          const obj = intersects[0].object;
+          if (hoveredObj !== obj) {
+            if (hoveredObj)
+              hoveredObj.userData.hover = false;
+            if (obj && items.indexOf(obj.name) != -1) {
+              hoveredObj = obj;
+              obj.userData.hover = true;
+              console.log("obj", hoveredObj.name);
+            } else if (obj && obj.parent && items.indexOf(obj.parent.name) != -1) {
+              hoveredObj = obj.parent;
+              obj.parent.userData.hover = true;
+              console.log("parent", hoveredObj.name);
+            }
+          }
+        } else {
+          if (hoveredObj)
+            hoveredObj.userData.hover = false;
+          hoveredObj = null;
+        }
+        if (hoveredObj && hoveredObj.userData.hover) {
+          const effect = effects[hoveredObj.name];
+          console.log("effect", hoveredObj.name, effects);
+          if (effect)
+            effect(hoveredObj);
+          hoveredObj.userData.hover = false;
+        }
         if (planetRef.current) {
-          console.log("rotation animate");
           const current = planetRef.current.rotation.y;
           planetRef.current.rotation.y += (targetRotY - current) * 0.08;
         }
         renderer.render(scene, camera);
       };
       animate();
-      ;
-      renderer.domElement.addEventListener("wheel", onWheel, { passive: false });
-      controls.enableRotate = false;
-      controls.enablePan = false;
-      controls.enableZoom = false;
-      controls.zoomSpeed = 1;
-      controls.minDistance = 0.5;
-      controls.maxDistance = 50;
-      controls.update();
       return () => {
         mountRef.current?.removeChild(renderer.domElement);
         renderer.domElement.removeEventListener("wheel", onWheel);
