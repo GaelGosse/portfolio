@@ -231,7 +231,8 @@ export default function Home() {
 		const items = ["Stadium", "Photo", "Shell", "Cube3D", "Toolbox"];
 		const loader = new GLTFLoader();
 		loader.load(
-			'/models/scene12.glb', // URL publique
+			// '/models/scene12.glb',
+			'/models/school0.glb',
 			(gltf) => {
 				scene.add(gltf.scene);
 
@@ -246,8 +247,8 @@ export default function Home() {
 					opacity: 0.6,
 					roughness: 0,
 					metalness: 0.1,
-					transmission: 0.35,     // effet verre/eau
-					thickness: 1,      // profondeur optique
+					transmission: 0.35,
+					thickness: 1,
 				});
 
 				if (planet)
@@ -261,37 +262,6 @@ export default function Home() {
 					});
 				}
 
-				const toolbox = gltf.scene.getObjectByName("Toolbox");
-				const lid = gltf.scene.getObjectByName("Cube007");
-
-				if (toolbox && lid) {
-
-					// 1. Coordonnées monde AVANT reparent
-					const worldPos = new THREE.Vector3();
-					const worldQuat = new THREE.Quaternion();
-					lid.getWorldPosition(worldPos);
-					lid.getWorldQuaternion(worldQuat);
-
-					// 2. Créer pivot
-					const pivot = new THREE.Object3D();
-					toolbox.add(pivot);
-
-					// 3. Positionner pivot exactement où était le couvercle
-					pivot.position.copy(toolbox.worldToLocal(worldPos.clone()));
-
-					// 4. Reparent couvercle
-					pivot.add(lid);
-
-					// 5. Remettre le couvercle à zéro dans le pivot
-					lid.position.set(0, 0, 0);
-					lid.quaternion.copy(worldQuat);
-
-					lid.updateMatrix();
-					lid.matrixAutoUpdate = false;
-
-					toolbox.userData.lidPivot = pivot;
-					pivot.rotation.x = -0.5;
-				}
 				camera.position.set(0.15, 2, 5);      // x lateral move ,y height,z distance w planet
 				camera.rotation.set(0, 0, 0);
 				camera.fov = 30;                   // plus petit = plus serré
@@ -321,6 +291,7 @@ export default function Home() {
 				const obj = intersects[0].object;
 				if (obj && hoveredObj !== obj)
 				{
+					console.log(`🚀 ~ hoveredObj:`, hoveredObj);
 					if (hoveredObj)
 						hoveredObj.userData.hover = false; // reset ancien
 					if (items.indexOf(obj.name) != -1)

@@ -59193,7 +59193,7 @@ void main() {
       const loader = new GLTFLoader();
       loader.load(
         "/models/scene12.glb",
-        // URL publique
+        // '/models/school0.glb',
         (gltf) => {
           scene.add(gltf.scene);
           const planet = gltf.scene.getObjectByName("Earth");
@@ -59207,9 +59207,7 @@ void main() {
             roughness: 0,
             metalness: 0.1,
             transmission: 0.35,
-            // effet verre/eau
             thickness: 1
-            // profondeur optique
           });
           if (planet) {
             planetRef.current = planet;
@@ -59218,25 +59216,6 @@ void main() {
               if (child && planet)
                 planet.add(child);
             });
-          }
-          const toolbox = gltf.scene.getObjectByName("Toolbox");
-          const lid = gltf.scene.getObjectByName("Cube007");
-          if (toolbox && lid) {
-            const worldPos = new Vector3();
-            const worldQuat = new Quaternion();
-            lid.getWorldPosition(worldPos);
-            lid.getWorldQuaternion(worldQuat);
-            const pivot = new Object3D();
-            toolbox.add(pivot);
-            pivot.position.copy(toolbox.worldToLocal(worldPos.clone()));
-            pivot.add(lid);
-            lid.position.set(0, 0, 0);
-            lid.quaternion.copy(worldQuat);
-            lid.updateMatrix();
-            lid.matrixAutoUpdate = false;
-            toolbox.userData.lidPivot = pivot;
-            pivot.rotation.x = -0.5;
-            console.log("pivot rotated test");
           }
           camera.position.set(0.15, 2, 5);
           camera.rotation.set(0, 0, 0);
@@ -59256,6 +59235,7 @@ void main() {
         if (intersects.length > 0) {
           const obj = intersects[0].object;
           if (obj && hoveredObj !== obj) {
+            console.log(`\u{1F680} ~ hoveredObj:`, hoveredObj);
             if (hoveredObj)
               hoveredObj.userData.hover = false;
             if (items.indexOf(obj.name) != -1) {
