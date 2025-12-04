@@ -59192,8 +59192,8 @@ void main() {
       const items = ["Stadium", "Photo", "Shell", "Cube3D", "Toolbox"];
       const loader = new GLTFLoader();
       loader.load(
-        "/models/scene12.glb",
-        // '/models/school0.glb',
+        // '/models/scene12.glb',
+        "/models/school0.glb",
         (gltf) => {
           scene.add(gltf.scene);
           const planet = gltf.scene.getObjectByName("Earth");
@@ -59235,7 +59235,6 @@ void main() {
         if (intersects.length > 0) {
           const obj = intersects[0].object;
           if (obj && hoveredObj !== obj) {
-            console.log(`\u{1F680} ~ hoveredObj:`, hoveredObj);
             if (hoveredObj)
               hoveredObj.userData.hover = false;
             if (items.indexOf(obj.name) != -1) {

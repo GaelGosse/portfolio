@@ -238,8 +238,9 @@ export default function Home() {
 
 				const planet = gltf.scene.getObjectByName("Earth") as THREE.Object3D;
 				const ocean = gltf.scene.getObjectByName("Water") as THREE.Object3D;
-				ocean.material.transparent = true;
-				ocean.material.opacity = 0.7;
+
+				// ocean.material.transparent = true;
+				// ocean.material.opacity = 0.7;
 
 				ocean.material = new THREE.MeshPhysicalMaterial({
 					color: 0x00ffff,
@@ -262,9 +263,9 @@ export default function Home() {
 					});
 				}
 
-				camera.position.set(0.15, 2, 5);      // x lateral move ,y height,z distance w planet
+				camera.position.set(0.15, 2, 5);
 				camera.rotation.set(0, 0, 0);
-				camera.fov = 30;                   // plus petit = plus serré
+				camera.fov = 30;
 				camera.updateProjectionMatrix();
 			},
 			undefined,
@@ -291,7 +292,6 @@ export default function Home() {
 				const obj = intersects[0].object;
 				if (obj && hoveredObj !== obj)
 				{
-					console.log(`🚀 ~ hoveredObj:`, hoveredObj);
 					if (hoveredObj)
 						hoveredObj.userData.hover = false; // reset ancien
 					if (items.indexOf(obj.name) != -1)
