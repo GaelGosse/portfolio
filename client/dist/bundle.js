@@ -59044,6 +59044,9 @@ void main() {
         1e3
       );
       const renderer = new WebGLRenderer({ antialias: true });
+      renderer.outputColorSpace = SRGBColorSpace;
+      renderer.toneMapping = ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1;
       renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
       mountRef.current.appendChild(renderer.domElement);
       const onResize = () => {
@@ -59069,7 +59072,7 @@ void main() {
       outlinePass.visibleEdgeColor.set("#ffffff");
       outlinePass.hiddenEdgeColor.set("#00000000");
       composer.addPass(outlinePass);
-      const light = new DirectionalLight(16777215, 3);
+      const light = new DirectionalLight(16777215, 1);
       light.position.set(2, 2, 5);
       scene.add(light);
       let inte = 12e4;
@@ -59133,6 +59136,7 @@ void main() {
           }, 50);
         },
         Toolbox: (obj, phase) => {
+          console.log("toolbox");
           const pivot = obj.userData.lidPivot;
           if (!pivot)
             return;
@@ -59142,8 +59146,16 @@ void main() {
             duration: 0.3,
             ease: "power2.out"
           });
+          setTimeout(() => {
+            gsapWithCSS.to(pivot.rotation, {
+              x: -0.2,
+              duration: 0.3,
+              ease: "power2.out"
+            });
+          }, 2e3);
         },
         Stadium: (obj, phase) => {
+          console.log("stadium");
           if (phase == "enter")
             return;
           if (obj.userData.confettiActive)
@@ -59174,12 +59186,18 @@ void main() {
         },
         Cube3D: (obj) => {
           const cube = obj.getObjectByName("Cube3D");
-          if (cube)
+          gsapWithCSS.to(cube.position, {
+            z: 0.2,
+            duration: 0.6,
+            ease: "power2.out"
+          });
+          setTimeout(() => {
             gsapWithCSS.to(cube.position, {
-              z: 0.2,
+              z: 0,
               duration: 0.6,
               ease: "power2.out"
             });
+          }, 2e3);
         },
         Shell: (obj, phase) => {
           gsapWithCSS.to(obj.rotation, {
@@ -59187,19 +59205,24 @@ void main() {
             duration: 0.4,
             ease: "power2.out"
           });
+          setTimeout(() => {
+            gsapWithCSS.to(obj.rotation, {
+              z: 0,
+              duration: 0.4,
+              ease: "power2.out"
+            });
+          }, 2e3);
         }
       };
       const items = ["Stadium", "Photo", "Shell", "Cube3D", "Toolbox"];
       const loader = new GLTFLoader();
       loader.load(
         // '/models/scene12.glb',
-        "/models/school0.glb",
+        "/models/school6.glb",
         (gltf) => {
           scene.add(gltf.scene);
           const planet = gltf.scene.getObjectByName("Earth");
           const ocean = gltf.scene.getObjectByName("Water");
-          ocean.material.transparent = true;
-          ocean.material.opacity = 0.7;
           ocean.material = new MeshPhysicalMaterial({
             color: 65535,
             transparent: true,
@@ -59219,7 +59242,7 @@ void main() {
           }
           camera.position.set(0.15, 2, 5);
           camera.rotation.set(0, 0, 0);
-          camera.fov = 30;
+          camera.fov = 40;
           camera.updateProjectionMatrix();
         },
         void 0,

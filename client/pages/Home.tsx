@@ -30,6 +30,10 @@ export default function Home() {
 			1000
 		);
 		const renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer.outputColorSpace = THREE.SRGBColorSpace;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 1;
+
 		renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
 		mountRef.current.appendChild(renderer.domElement);
 		const onResize = () => {
@@ -69,7 +73,7 @@ export default function Home() {
 		/* --------------------------------------------------
 		 * 2. LIGHTS
 		 * -------------------------------------------------- */
-		const light = new THREE.DirectionalLight(0xffffff, 3);
+		const light = new THREE.DirectionalLight(0xffffff, 1);
 		light.position.set(2, 2, 5);
 		scene.add(light);
 
@@ -165,6 +169,7 @@ export default function Home() {
 				}, 50);
 			},
 			Toolbox: (obj, phase) => {
+				console.log("toolbox");
 				const pivot = obj.userData.lidPivot;
 				if (!pivot)
 					return;
@@ -174,8 +179,17 @@ export default function Home() {
 					duration: 0.3,
 					ease: "power2.out"
 				});
+				setTimeout(() => {
+					gsap.to(pivot.rotation, {
+						x: -0.2,
+						duration: 0.3,
+						ease: "power2.out"
+					});
+				}, 2000);
 			},
 			Stadium: (obj, phase) => {
+				console.log("stadium");
+
 				if (phase == "enter")
 					return ;
 				if (obj.userData.confettiActive)
@@ -208,12 +222,18 @@ export default function Home() {
 			},
 			Cube3D: (obj) => {
 				const cube = obj.getObjectByName("Cube3D");
-				if (cube)
+				gsap.to(cube.position, {
+					z: 0.2,
+					duration: 0.6,
+					ease: "power2.out"
+				});
+				setTimeout(() => {
 					gsap.to(cube.position, {
-						z: 0.2,
+						z: 0,
 						duration: 0.6,
 						ease: "power2.out"
 					});
+				}, 2000);
 			},
 			Shell: (obj, phase) => {
 				// const target = phase === "enter" ? 0.15 : 0;
@@ -222,6 +242,13 @@ export default function Home() {
 					duration: 0.4,
 					ease: "power2.out",
 				});
+				setTimeout(() => {
+					gsap.to(obj.rotation, {
+						z: 0,
+						duration: 0.4,
+						ease: "power2.out",
+					});
+				}, 2000);
 			},
 		};
 
@@ -232,12 +259,13 @@ export default function Home() {
 		const loader = new GLTFLoader();
 		loader.load(
 			// '/models/scene12.glb',
-			'/models/school0.glb',
+			'/models/school6.glb',
 			(gltf) => {
 				scene.add(gltf.scene);
 
 				const planet = gltf.scene.getObjectByName("Earth") as THREE.Object3D;
 				const ocean = gltf.scene.getObjectByName("Water") as THREE.Object3D;
+
 
 				// ocean.material.transparent = true;
 				// ocean.material.opacity = 0.7;
@@ -265,7 +293,7 @@ export default function Home() {
 
 				camera.position.set(0.15, 2, 5);
 				camera.rotation.set(0, 0, 0);
-				camera.fov = 30;
+				camera.fov = 40;
 				camera.updateProjectionMatrix();
 			},
 			undefined,
@@ -292,6 +320,11 @@ export default function Home() {
 				const obj = intersects[0].object;
 				if (obj && hoveredObj !== obj)
 				{
+					// if (obj.name == "Shell" || obj.parent?.name == "Shell")
+					// 	console.log("-> OK <-");
+					// else
+					// 	console.log("no...");
+					// console.log(obj.name, obj.parent?.name)
 					if (hoveredObj)
 						hoveredObj.userData.hover = false; // reset ancien
 					if (items.indexOf(obj.name) != -1)
