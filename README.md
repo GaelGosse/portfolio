@@ -21,7 +21,10 @@ npm run build && npm run dev
 ✅ rotate while scrolling
 ✅ resize window
 
-⬜ 
+⬜ hover Random_white Random_black
+⬜ click leads to a page
+⬜ scroll to south
+⬜ click -> github
 
 
 

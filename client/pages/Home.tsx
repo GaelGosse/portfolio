@@ -77,9 +77,6 @@ export default function Home() {
 		light.position.set(2, 2, 5);
 		scene.add(light);
 
-		// const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-		// scene.add(ambientLight);
-
 		/* --------------------------------------------------
 		 * 3 BIS. CONTROLS
 		 * -------------------------------------------------- */
@@ -113,6 +110,12 @@ export default function Home() {
 		let earth: THREE.Object3D | null = null;
 		let targetRotation = 0;
 		let currentRotation = 0;
+
+		let randomWhite: THREE.Mesh | null = null;
+		let randomBlack: THREE.Mesh | null = null;
+
+		let randomAnimationStart = 0;
+		let randomAnimationActive = false;
 
 		const findInteractiveObject = (
 			object: THREE.Object3D
@@ -180,6 +183,8 @@ export default function Home() {
 						"Shell",
 						"Cube3D",
 						"Toolbox",
+						"Random_white",
+						"Random_black"
 					];
 
 					for (const name of interactiveObjects) {
@@ -188,6 +193,9 @@ export default function Home() {
 							earth.add(object);
 					}
 				}
+
+				randomWhite = model.getObjectByName("Random_white") as THREE.Mesh;
+				randomBlack = model.getObjectByName("Random_black") as THREE.Mesh;
 
 				camera.position.set(0.15, 2, 5);
 				camera.rotation.set(0, 0, 0);
@@ -233,13 +241,53 @@ export default function Home() {
 		 * -------------------------------------------------- */
 
 		let animationFrameId: number;
+		const animateRandomFaces = () => {
+			if (!randomWhite || !randomBlack)
+				return;
+
+			randomAnimationStart = performance.now();
+			randomAnimationActive = true;
+		};
 
 		const animate = () => {
 			animationFrameId = requestAnimationFrame(animate);
 			if (earth) {
 				currentRotation += (targetRotation - currentRotation) * 0.08;
-
 				earth.rotation.y = currentRotation;
+			}
+
+			if (randomAnimationActive) {
+				const elapsed =
+					performance.now() - randomAnimationStart;
+
+				const duration = 400;
+
+				const progress = Math.min(
+					elapsed / duration,
+					1
+				);
+
+				const whiteMaterial =
+					randomWhite.material as THREE.MeshStandardMaterial;
+
+				const blackMaterial =
+					randomBlack.material as THREE.MeshStandardMaterial;
+
+				whiteMaterial.color.lerpColors(
+					new THREE.Color(0xffffff),
+					new THREE.Color(0x000000),
+					progress
+				);
+
+				blackMaterial.color.lerpColors(
+					new THREE.Color(0x000000),
+					new THREE.Color(0xffffff),
+					progress
+				);
+
+				if (progress >= 1) {
+					randomAnimationActive = false;
+				}
 			}
 
 			raycaster.setFromCamera(mouse, camera);
@@ -257,11 +305,6 @@ export default function Home() {
 				);
 			}
 
-			/*
-			 * Évite de modifier OutlinePass à chaque frame
-			 * lorsque la souris reste sur le même objet.
-			 */
-
 			if (newHoveredObject !== hoveredObject) {
 				hoveredObject = newHoveredObject;
 
@@ -269,8 +312,11 @@ export default function Home() {
 					hoveredObject
 						? [hoveredObject]
 						: [];
-			}
 
+				if (hoveredObject?.name === "Random_white") {
+					animateRandomFaces();
+				}
+			}
 
 			composer.render();
 		};

@@ -54775,6 +54775,10 @@ void main() {
       let earth = null;
       let targetRotation = 0;
       let currentRotation = 0;
+      let randomWhite = null;
+      let randomBlack = null;
+      let randomAnimationStart = 0;
+      let randomAnimationActive = false;
       const findInteractiveObject = (object) => {
         let current = object;
         while (current) {
@@ -54822,7 +54826,9 @@ void main() {
               "Photo",
               "Shell",
               "Cube3D",
-              "Toolbox"
+              "Toolbox",
+              "Random_white",
+              "Random_black"
             ];
             for (const name of interactiveObjects) {
               const object = model.getObjectByName(name);
@@ -54830,6 +54836,8 @@ void main() {
                 earth.add(object);
             }
           }
+          randomWhite = model.getObjectByName("Random_white");
+          randomBlack = model.getObjectByName("Random_black");
           camera.position.set(0.15, 2, 5);
           camera.rotation.set(0, 0, 0);
           camera.fov = 40;
@@ -54859,11 +54867,40 @@ void main() {
       };
       window.addEventListener("resize", onResize);
       let animationFrameId;
+      const animateRandomFaces = () => {
+        if (!randomWhite || !randomBlack)
+          return;
+        randomAnimationStart = performance.now();
+        randomAnimationActive = true;
+      };
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
         if (earth) {
           currentRotation += (targetRotation - currentRotation) * 0.08;
           earth.rotation.y = currentRotation;
+        }
+        if (randomAnimationActive) {
+          const elapsed = performance.now() - randomAnimationStart;
+          const duration = 400;
+          const progress = Math.min(
+            elapsed / duration,
+            1
+          );
+          const whiteMaterial = randomWhite.material;
+          const blackMaterial = randomBlack.material;
+          whiteMaterial.color.lerpColors(
+            new Color(16777215),
+            new Color(0),
+            progress
+          );
+          blackMaterial.color.lerpColors(
+            new Color(0),
+            new Color(16777215),
+            progress
+          );
+          if (progress >= 1) {
+            randomAnimationActive = false;
+          }
         }
         raycaster.setFromCamera(mouse, camera);
         const intersections = raycaster.intersectObjects(
@@ -54879,6 +54916,9 @@ void main() {
         if (newHoveredObject !== hoveredObject) {
           hoveredObject = newHoveredObject;
           outlinePass.selectedObjects = hoveredObject ? [hoveredObject] : [];
+          if (hoveredObject?.name === "Random_white") {
+            animateRandomFaces();
+          }
         }
         composer.render();
       };
