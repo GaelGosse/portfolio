@@ -54713,6 +54713,7 @@ void main() {
   // client/pages/Home.tsx
   function Home() {
     const mountRef = (0, import_react.useRef)(null);
+    const navigate = useNavigate();
     (0, import_react.useEffect)(() => {
       const mount = mountRef.current;
       if (!mount)
@@ -54726,6 +54727,16 @@ void main() {
         0.1,
         1e3
       );
+      let cameraPosition = {
+        x: 0,
+        y: 2,
+        z: 5
+      };
+      let cameraRotation = {
+        x: 0,
+        y: 0,
+        z: 0
+      };
       const renderer = new WebGLRenderer({ antialias: true });
       renderer.outputColorSpace = SRGBColorSpace;
       renderer.toneMapping = ACESFilmicToneMapping;
@@ -54741,10 +54752,10 @@ void main() {
         scene,
         camera
       );
-      outlinePass.edgeStrength = 2;
-      outlinePass.edgeGlow = 0.2;
+      outlinePass.edgeStrength = 8;
+      outlinePass.edgeGlow = 0.5;
       outlinePass.edgeThickness = 1;
-      outlinePass.visibleEdgeColor.set("#ffffff");
+      outlinePass.visibleEdgeColor.set("#ffeeee");
       outlinePass.hiddenEdgeColor.set("#000000");
       composer.addPass(outlinePass);
       const outputPass = new OutputPass();
@@ -54769,16 +54780,17 @@ void main() {
         "Photo",
         "Shell",
         "Cube3D",
-        "Toolbox"
+        "Toolbox",
+        "Game_of_life"
       ]);
       let hoveredObject = null;
       let earth = null;
-      let targetRotation = 0;
-      let currentRotation = 0;
-      let randomWhite = null;
-      let randomBlack = null;
-      let randomAnimationStart = 0;
-      let randomAnimationActive = false;
+      let targetRotationY = 0;
+      let currentRotationY = 0;
+      let gameOfLife = null;
+      let gameOfLifeActive = false;
+      let gameOfLifeTimer = 0;
+      let gameOfLifeColors = null;
       const findInteractiveObject = (object) => {
         let current = object;
         while (current) {
@@ -54788,6 +54800,47 @@ void main() {
         }
         return null;
       };
+      const handleClickObject = (obj) => {
+        switch (obj.name) {
+          case "Stadium":
+            navigate("/stadium");
+            break;
+          case "Photo":
+            navigate("lpiewdprod.com");
+            break;
+          case "Shell":
+            navigate("/hell");
+            break;
+          case "Cube3D":
+            navigate("/ube3D");
+            break;
+          case "Toolbox":
+            navigate("/oolbox");
+            break;
+          case "Game_of_life":
+            navigate("/ame_of_life");
+            break;
+          default:
+            break;
+        }
+      };
+      const onClick = () => {
+        raycaster.setFromCamera(mouse, camera);
+        const intersections = raycaster.intersectObjects(
+          scene.children,
+          true
+        );
+        if (intersections.length === 0)
+          return;
+        const clickedObject = findInteractiveObject(
+          intersections[0].object
+        );
+        if (!clickedObject)
+          return;
+        console.log("Clicked:", clickedObject.name);
+        handleClickObject(clickedObject);
+      };
+      renderer.domElement.addEventListener("click", onClick);
       const onMouseMove2 = (event) => {
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = (event.clientX - rect.left) / rect.width * 2 - 1;
@@ -54795,14 +54848,34 @@ void main() {
       };
       renderer.domElement.addEventListener("mousemove", onMouseMove2);
       const onWheel = (event) => {
-        targetRotation += event.deltaY * 2e-3;
+        if (targetRotationY > -6.1 && targetRotationY < 6.1)
+          targetRotationY += event.deltaY * 2e-3;
+        else if (cameraRotation.x >= 0) {
+          cameraRotation.x -= event.deltaY * 15e-5;
+          if (cameraPosition.z > 0)
+            cameraPosition.z += event.deltaY * 5e-4;
+          if (cameraPosition.y > 0.1)
+            cameraPosition.y += event.deltaY * 2e-4;
+          console.log("cameraPosition", cameraPosition);
+          console.log("cameraRotation", cameraRotation);
+          console.log("targetRotationY", targetRotationY);
+          console.log();
+          camera.position.set(
+            cameraPosition.x,
+            cameraPosition.y,
+            cameraPosition.z
+          );
+          camera.rotation.set(
+            cameraRotation.x,
+            cameraRotation.y,
+            cameraRotation.z
+          );
+        }
       };
-      renderer.domElement.addEventListener("wheel", onWheel, {
-        passive: true
-      });
+      renderer.domElement.addEventListener("wheel", onWheel, { passive: true });
       const loader = new GLTFLoader();
       loader.load(
-        "/models/school6.glb",
+        "/models/school9.glb",
         (gltf) => {
           const model = gltf.scene;
           scene.add(model);
@@ -54827,8 +54900,7 @@ void main() {
               "Shell",
               "Cube3D",
               "Toolbox",
-              "Random_white",
-              "Random_black"
+              "Game_of_life"
             ];
             for (const name of interactiveObjects) {
               const object = model.getObjectByName(name);
@@ -54836,10 +54908,43 @@ void main() {
                 earth.add(object);
             }
           }
-          randomWhite = model.getObjectByName("Random_white");
-          randomBlack = model.getObjectByName("Random_black");
-          camera.position.set(0.15, 2, 5);
-          camera.rotation.set(0, 0, 0);
+          gameOfLife = model.getObjectByName(
+            "Game_of_life"
+          );
+          if (gameOfLife) {
+            let geometry = gameOfLife.geometry;
+            geometry = geometry.toNonIndexed();
+            gameOfLife.geometry = geometry;
+            const position = geometry.getAttribute("position");
+            const vertexCount = position.count;
+            gameOfLifeColors = new Float32Array(vertexCount * 3);
+            for (let i = 0; i < vertexCount; i += 3) {
+              const color = Math.random() > 0.5 ? 1 : 0;
+              for (let vertex2 = 0; vertex2 < 3; vertex2++) {
+                const index = (i + vertex2) * 3;
+                gameOfLifeColors[index] = color;
+                gameOfLifeColors[index + 1] = color;
+                gameOfLifeColors[index + 2] = color;
+              }
+            }
+            geometry.setAttribute(
+              "color",
+              new BufferAttribute(gameOfLifeColors, 3)
+            );
+            const material = gameOfLife.material;
+            material.vertexColors = true;
+            material.needsUpdate = true;
+          }
+          camera.position.set(
+            cameraPosition.x,
+            cameraPosition.y,
+            cameraPosition.z
+          );
+          camera.rotation.set(
+            cameraRotation.x,
+            cameraRotation.y,
+            cameraRotation.z
+          );
           camera.fov = 40;
           camera.updateProjectionMatrix();
         },
@@ -54867,39 +54972,31 @@ void main() {
       };
       window.addEventListener("resize", onResize);
       let animationFrameId;
-      const animateRandomFaces = () => {
-        if (!randomWhite || !randomBlack)
-          return;
-        randomAnimationStart = performance.now();
-        randomAnimationActive = true;
-      };
       const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
         if (earth) {
-          currentRotation += (targetRotation - currentRotation) * 0.08;
-          earth.rotation.y = currentRotation;
+          currentRotationY += (targetRotationY - currentRotationY) * 0.08;
+          earth.rotation.y = currentRotationY;
         }
-        if (randomAnimationActive) {
-          const elapsed = performance.now() - randomAnimationStart;
-          const duration = 400;
-          const progress = Math.min(
-            elapsed / duration,
-            1
-          );
-          const whiteMaterial = randomWhite.material;
-          const blackMaterial = randomBlack.material;
-          whiteMaterial.color.lerpColors(
-            new Color(16777215),
-            new Color(0),
-            progress
-          );
-          blackMaterial.color.lerpColors(
-            new Color(0),
-            new Color(16777215),
-            progress
-          );
-          if (progress >= 1) {
-            randomAnimationActive = false;
+        if (hoveredObject?.name === "Game_of_life" && gameOfLife && gameOfLifeColors) {
+          const now = performance.now();
+          if (now - gameOfLifeTimer >= 200) {
+            gameOfLifeTimer = now;
+            for (let i = 0; i < gameOfLifeColors.length; i += 9) {
+              if (Math.random() < 0.15) {
+                const currentColor = gameOfLifeColors[i];
+                const newColor = currentColor === 1 ? 0 : 1;
+                for (let j = 0; j < 9; j += 3) {
+                  gameOfLifeColors[i + j] = newColor;
+                  gameOfLifeColors[i + j + 1] = newColor;
+                  gameOfLifeColors[i + j + 2] = newColor;
+                }
+              }
+            }
+            const colorAttribute = gameOfLife.geometry.getAttribute(
+              "color"
+            );
+            colorAttribute.needsUpdate = true;
           }
         }
         raycaster.setFromCamera(mouse, camera);
@@ -54916,9 +55013,7 @@ void main() {
         if (newHoveredObject !== hoveredObject) {
           hoveredObject = newHoveredObject;
           outlinePass.selectedObjects = hoveredObject ? [hoveredObject] : [];
-          if (hoveredObject?.name === "Random_white") {
-            animateRandomFaces();
-          }
+          renderer.domElement.style.cursor = hoveredObject ? "pointer" : "default";
         }
         composer.render();
       };
@@ -54948,6 +55043,7 @@ void main() {
     "client/pages/Home.tsx"() {
       "use strict";
       import_react = __toESM(require_react());
+      init_dist();
       init_GLTFLoader();
       init_OrbitControls();
       init_EffectComposer();

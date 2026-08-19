@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -11,6 +12,7 @@ import gsap from "gsap";
 
 export default function Home() {
 	const mountRef = useRef<HTMLDivElement>(null);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const mount = mountRef.current;
@@ -30,6 +32,17 @@ export default function Home() {
 			0.1,
 			1000
 		);
+
+		let cameraPosition = {
+			x: 0,
+			y: 2,
+			z: 5,
+		}
+		let cameraRotation = {
+			x: 0,
+			y: 0,
+			z: 0,
+		}
 
 		const renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -58,11 +71,11 @@ export default function Home() {
 			camera
 		);
 
-		outlinePass.edgeStrength = 2;   // épaisseur
-		outlinePass.edgeGlow = 0.2;
+		outlinePass.edgeStrength = 8;   // épaisseur
+		outlinePass.edgeGlow = 0.5;
 		outlinePass.edgeThickness = 1;
 
-		outlinePass.visibleEdgeColor.set('#ffffff');
+		outlinePass.visibleEdgeColor.set('#ffeeee');
 		outlinePass.hiddenEdgeColor.set('#000000'); // invisible
 
 		composer.addPass(outlinePass);
@@ -103,19 +116,20 @@ export default function Home() {
 			"Shell",
 			"Cube3D",
 			"Toolbox",
+			"Game_of_life",
 		]);
 
 		let hoveredObject: THREE.Object3D | null = null;
 
 		let earth: THREE.Object3D | null = null;
-		let targetRotation = 0;
-		let currentRotation = 0;
+		let targetRotationY = 0;
+		let currentRotationY = 0;
 
-		let randomWhite: THREE.Mesh | null = null;
-		let randomBlack: THREE.Mesh | null = null;
+		let gameOfLife: THREE.Mesh | null = null;
 
-		let randomAnimationStart = 0;
-		let randomAnimationActive = false;
+		let gameOfLifeActive = false;
+		let gameOfLifeTimer = 0;
+		let gameOfLifeColors: Float32Array | null = null;
 
 		const findInteractiveObject = (
 			object: THREE.Object3D
@@ -131,7 +145,55 @@ export default function Home() {
 
 			return null;
 		};
+		const handleClickObject = (obj: THREE.Object3D) =>
+		{
+			switch (obj.name) {
+				case "Stadium":
+					navigate("/stadium");
+					break ;
+				case "Photo":
+					navigate("lpiewdprod.com");
+					break ;
+				case "Shell":
+					navigate("/hell");
+					break ;
+				case "Cube3D":
+					navigate("/ube3D");
+					break ;
+				case "Toolbox":
+					navigate("/oolbox");
+					break ;
+				case "Game_of_life":
+					navigate("/ame_of_life");
+					break ;
 
+				default:
+					break;
+			}
+		}
+
+		const onClick = () => {
+			raycaster.setFromCamera(mouse, camera);
+
+			const intersections = raycaster.intersectObjects(
+				scene.children,
+				true
+			);
+
+			if (intersections.length === 0)
+				return;
+
+			const clickedObject = findInteractiveObject(
+				intersections[0].object
+			);
+
+			if (!clickedObject)
+				return;
+
+			console.log("Clicked:", clickedObject.name);
+			handleClickObject(clickedObject);
+		};
+		renderer.domElement.addEventListener("click", onClick);
 
 		const onMouseMove = (event: MouseEvent) => {
 			const rect = renderer.domElement.getBoundingClientRect();
@@ -139,22 +201,45 @@ export default function Home() {
 			mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
 			mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 		};
-
-
 		renderer.domElement.addEventListener("mousemove", onMouseMove);
-		const onWheel = (event: WheelEvent) => {
-			targetRotation += event.deltaY * 0.002;
-		};
 
-		renderer.domElement.addEventListener("wheel", onWheel, {
-			passive: true,
-		});
+		const onWheel = (event: WheelEvent) => {
+			if (targetRotationY > - 6.1 &&
+				targetRotationY <  6.1)
+				targetRotationY += event.deltaY * 0.002;
+			else if (cameraRotation.x >= 0)
+			{
+				cameraRotation.x -= event.deltaY * 0.00015; // horizontal
+				if (cameraPosition.z > 0)
+					cameraPosition.z += event.deltaY * 0.0005; // depth
+				if (cameraPosition.y > 0.1)
+					cameraPosition.y += event.deltaY * 0.0002; // height
+				console.log("cameraPosition", cameraPosition);
+				console.log("cameraRotation", cameraRotation);
+				console.log("targetRotationY", targetRotationY);
+				console.log();
+
+
+				camera.position.set(
+					cameraPosition.x,
+					cameraPosition.y,
+					cameraPosition.z,
+				);
+				camera.rotation.set(
+					cameraRotation.x,
+					cameraRotation.y,
+					cameraRotation.z,
+				);
+			}
+		};
+		renderer.domElement.addEventListener("wheel", onWheel, {passive: true,});
+
 		/* --------------------------------------------------
 		 * 5. LOAD MODEL
 		 * -------------------------------------------------- */
 		const loader = new GLTFLoader();
 		loader.load(
-			"/models/school6.glb",
+			"/models/school9.glb",
 			(gltf) => {
 				const model = gltf.scene;
 				scene.add(model);
@@ -176,15 +261,15 @@ export default function Home() {
 				const planet = model.getObjectByName("Earth");
 				earth = model.getObjectByName("Earth");
 
-				if (earth) {
+				if (earth)
+				{
 					const interactiveObjects = [
 						"Stadium",
 						"Photo",
 						"Shell",
 						"Cube3D",
 						"Toolbox",
-						"Random_white",
-						"Random_black"
+						"Game_of_life",
 					];
 
 					for (const name of interactiveObjects) {
@@ -194,11 +279,60 @@ export default function Home() {
 					}
 				}
 
-				randomWhite = model.getObjectByName("Random_white") as THREE.Mesh;
-				randomBlack = model.getObjectByName("Random_black") as THREE.Mesh;
+				gameOfLife = model.getObjectByName(
+					"Game_of_life"
+				) as THREE.Mesh;
 
-				camera.position.set(0.15, 2, 5);
-				camera.rotation.set(0, 0, 0);
+				if (gameOfLife)
+				{
+					let geometry = gameOfLife.geometry as THREE.BufferGeometry;
+
+					// Garantit que chaque triangle possède 3 vertices indépendants
+					geometry = geometry.toNonIndexed();
+
+					gameOfLife.geometry = geometry;
+
+					const position = geometry.getAttribute("position");
+					const vertexCount = position.count;
+
+					gameOfLifeColors = new Float32Array(vertexCount * 3);
+
+					// Initialisation : une couleur pour chaque triangle
+					for (let i = 0; i < vertexCount; i += 3) {
+
+						const color = Math.random() > 0.5 ? 1 : 0;
+
+						for (let vertex = 0; vertex < 3; vertex++) {
+
+							const index = (i + vertex) * 3;
+
+							gameOfLifeColors[index] = color;
+							gameOfLifeColors[index + 1] = color;
+							gameOfLifeColors[index + 2] = color;
+						}
+					}
+
+					geometry.setAttribute(
+						"color",
+						new THREE.BufferAttribute(gameOfLifeColors, 3)
+					);
+
+					const material = gameOfLife.material as THREE.MeshStandardMaterial;
+
+					material.vertexColors = true;
+					material.needsUpdate = true;
+				}
+
+				camera.position.set(
+					cameraPosition.x,
+					cameraPosition.y,
+					cameraPosition.z,
+				);
+				camera.rotation.set(
+					cameraRotation.x,
+					cameraRotation.y,
+					cameraRotation.z,
+				);
 				camera.fov = 40;
 				camera.updateProjectionMatrix();
 			},
@@ -241,52 +375,65 @@ export default function Home() {
 		 * -------------------------------------------------- */
 
 		let animationFrameId: number;
-		const animateRandomFaces = () => {
-			if (!randomWhite || !randomBlack)
-				return;
-
-			randomAnimationStart = performance.now();
-			randomAnimationActive = true;
-		};
 
 		const animate = () => {
 			animationFrameId = requestAnimationFrame(animate);
-			if (earth) {
-				currentRotation += (targetRotation - currentRotation) * 0.08;
-				earth.rotation.y = currentRotation;
+			if (earth)
+			{
+				currentRotationY += (targetRotationY - currentRotationY) * 0.08;
+				earth.rotation.y = currentRotationY;
 			}
 
-			if (randomAnimationActive) {
-				const elapsed =
-					performance.now() - randomAnimationStart;
+			if (
+				hoveredObject?.name === "Game_of_life" &&
+				gameOfLife &&
+				gameOfLifeColors
+			)
+			{
 
-				const duration = 400;
+				const now = performance.now();
 
-				const progress = Math.min(
-					elapsed / duration,
-					1
-				);
+				if (now - gameOfLifeTimer >= 200) {
+					gameOfLifeTimer = now;
 
-				const whiteMaterial =
-					randomWhite.material as THREE.MeshStandardMaterial;
+					for (
+						let i = 0;
+						i < gameOfLifeColors.length;
+						i += 9
+					) {
+						/*
+						* Un triangle = 3 vertices = 9 valeurs.
+						*
+						* 15% des triangles changent d'état.
+						*/
+						if (Math.random() < 0.15) {
+							const currentColor =
+								gameOfLifeColors[i];
 
-				const blackMaterial =
-					randomBlack.material as THREE.MeshStandardMaterial;
+							const newColor =
+								currentColor === 1
+									? 0
+									: 1;
 
-				whiteMaterial.color.lerpColors(
-					new THREE.Color(0xffffff),
-					new THREE.Color(0x000000),
-					progress
-				);
+							for (let j = 0; j < 9; j += 3) {
+								gameOfLifeColors[i + j] =
+									newColor;
 
-				blackMaterial.color.lerpColors(
-					new THREE.Color(0x000000),
-					new THREE.Color(0xffffff),
-					progress
-				);
+								gameOfLifeColors[i + j + 1] =
+									newColor;
 
-				if (progress >= 1) {
-					randomAnimationActive = false;
+								gameOfLifeColors[i + j + 2] =
+									newColor;
+							}
+						}
+					}
+
+					const colorAttribute =
+						gameOfLife.geometry.getAttribute(
+							"color"
+						) as THREE.BufferAttribute;
+
+					colorAttribute.needsUpdate = true;
 				}
 			}
 
@@ -305,17 +452,19 @@ export default function Home() {
 				);
 			}
 
-			if (newHoveredObject !== hoveredObject) {
+			if (newHoveredObject !== hoveredObject)
+			{
 				hoveredObject = newHoveredObject;
 
 				outlinePass.selectedObjects =
 					hoveredObject
 						? [hoveredObject]
 						: [];
+				renderer.domElement.style.cursor =
+					hoveredObject
+						? "pointer"
+						: "default";
 
-				if (hoveredObject?.name === "Random_white") {
-					animateRandomFaces();
-				}
 			}
 
 			composer.render();
