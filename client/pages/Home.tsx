@@ -34,7 +34,7 @@ export default function Home() {
 		);
 
 		let cameraPosition = {
-			x: 0,
+			x: -0.035, // + : camera go to R // - : camera go to L
 			y: 2,
 			z: 5,
 		}
@@ -117,11 +117,14 @@ export default function Home() {
 			"Cube3D",
 			"Toolbox",
 			"Game_of_life",
+			"Button"
 		]);
 
 		let hoveredObject: THREE.Object3D | null = null;
 
 		let earth: THREE.Object3D | null = null;
+		let button: THREE.Object3D | null = null;
+		let button_frame: THREE.Object3D | null = null;
 		let targetRotationY = 0;
 		let currentRotationY = 0;
 
@@ -145,27 +148,58 @@ export default function Home() {
 
 			return null;
 		};
-		const handleClickObject = (obj: THREE.Object3D) =>
-		{
+		const handleClickObject = (obj: THREE.Object3D) => {
 			switch (obj.name) {
 				case "Stadium":
 					navigate("/stadium");
-					break ;
+					break;
 				case "Photo":
-					navigate("lpiewdprod.com");
-					break ;
+					window.location.href = "https://lpiewdprod.com";
+					break;
 				case "Shell":
-					navigate("/hell");
-					break ;
+					navigate("/minihell");
+					break;
 				case "Cube3D":
-					navigate("/ube3D");
-					break ;
+					navigate("/cube3D");
+					break;
 				case "Toolbox":
-					navigate("/oolbox");
-					break ;
+					navigate("/shell_function_n_shortcut");
+					break;
 				case "Game_of_life":
-					navigate("/ame_of_life");
-					break ;
+					navigate("/game_of_life");
+					break;
+				case "Button":
+					gsap.to(button.position, {
+						x: button.position.x,
+						y: button.position.y + 0.035,
+						z: button.position.z,
+						duration: 0.15,
+						ease: "power2.out",
+					});
+					setTimeout(() => {
+						gsap.to(button.position, {
+							x: button.position.x,
+							y: button.position.y - 0.035,
+							z: button.position.z,
+							duration: 0.3,
+							ease: "power2.out",
+						});
+					}, 200);
+					setTimeout(() => {
+						document.querySelector('#fade-overlay')?.classList.add('active');
+						cameraPosition.y += 0.7
+						gsap.to(camera.position, {
+							x: cameraPosition.x,
+							y: cameraPosition.y,
+							z: cameraPosition.z,
+							duration: 1,
+							ease: "power2.out",
+						});
+					}, 750);
+					setTimeout(() => {
+						// window.location.href = "https://github.com/gaelgosse";
+					}, 2500);
+					break;
 
 				default:
 					break;
@@ -203,43 +237,132 @@ export default function Home() {
 		};
 		renderer.domElement.addEventListener("mousemove", onMouseMove);
 
+		let isSouth = false
 		const onWheel = (event: WheelEvent) => {
-			if (targetRotationY > - 6.1 &&
-				targetRotationY <  6.1)
-				targetRotationY += event.deltaY * 0.002;
-			else if (cameraRotation.x >= 0)
+
+			if (event.deltaY > 0) // scroll down && counterclockwise
 			{
-				cameraRotation.x -= event.deltaY * 0.00015; // horizontal
-				if (cameraPosition.z > 0)
-					cameraPosition.z += event.deltaY * 0.0005; // depth
-				if (cameraPosition.y > 0.1)
-					cameraPosition.y += event.deltaY * 0.0002; // height
-				console.log("cameraPosition", cameraPosition);
-				console.log("cameraRotation", cameraRotation);
-				console.log("targetRotationY", targetRotationY);
-				console.log();
-
-
-				camera.position.set(
-					cameraPosition.x,
-					cameraPosition.y,
-					cameraPosition.z,
-				);
-				camera.rotation.set(
-					cameraRotation.x,
-					cameraRotation.y,
-					cameraRotation.z,
-				);
+				if (targetRotationY < 6.1 && isSouth == false)
+					targetRotationY += event.deltaY * 0.002;
+				else if (targetRotationY < -6.1 && isSouth)
+				{
+					isSouth = false
+					cameraRotation.x = 0
+					cameraPosition.y = 2
+					cameraPosition.z = 5
+					gsap.to(camera.position, {
+						x: cameraPosition.x,
+						y: cameraPosition.y,
+						z: cameraPosition.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+					gsap.to(camera.rotation, {
+						x: cameraRotation.x,
+						y: cameraRotation.y,
+						z: cameraRotation.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+				}
+				else {
+					isSouth = true
+					cameraRotation.x = 1.5
+					cameraPosition.y = 0.1
+					cameraPosition.z = 0.05
+					gsap.to(camera.position, {
+						x: cameraPosition.x,
+						y: cameraPosition.y,
+						z: cameraPosition.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+					gsap.to(camera.rotation, {
+						x: cameraRotation.x,
+						y: cameraRotation.y,
+						z: cameraRotation.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+				}
 			}
+			else // scroll up && clockwise
+			{
+				if (targetRotationY > -6.1 && isSouth == false)
+					targetRotationY += event.deltaY * 0.002;
+				else if (targetRotationY > 6.1 && isSouth)
+				{
+					isSouth = false
+					cameraRotation.x = 0
+					cameraPosition.y = 2
+					cameraPosition.z = 5
+					gsap.to(camera.position, {
+						x: cameraPosition.x,
+						y: cameraPosition.y,
+						z: cameraPosition.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+					gsap.to(camera.rotation, {
+						x: cameraRotation.x,
+						y: cameraRotation.y,
+						z: cameraRotation.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+				}
+				else {
+					isSouth = true
+					cameraRotation.x = 1.5
+					cameraPosition.y = 0.1
+					cameraPosition.z = 0.05
+					gsap.to(camera.position, {
+						x: cameraPosition.x,
+						y: cameraPosition.y,
+						z: cameraPosition.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+					gsap.to(camera.rotation, {
+						x: cameraRotation.x,
+						y: cameraRotation.y,
+						z: cameraRotation.z,
+						duration: 1.5,
+						ease: "power2.out",
+					});
+				}
+			}
+			// if (targetRotationY > - 6.1 &&
+			// 	targetRotationY <  6.1)
+			// 	targetRotationY += event.deltaY * 0.002;
+			// else if (cameraRotation.x >= 0)
+			// {
+			// 	cameraRotation.x -= event.deltaY * 0.00015; // horizontal
+
+			// 	if (cameraPosition.z > 0)
+			// 		cameraPosition.z += event.deltaY * 0.0005; // depth
+			// 	if (cameraPosition.y > 0.1)
+			// 		cameraPosition.y += event.deltaY * 0.0002; // height
+			// 	console.log("cameraPosition", cameraPosition);
+			// 	console.log("cameraRotation", cameraRotation);
+			// 	console.log("targetRotationY", targetRotationY);
+
+			// 	console.log();
+
+			// }
+			console.log(targetRotationY, cameraPosition, cameraRotation, event.deltaY);
+			console.log(isSouth);
+			console.log();
+
 		};
-		renderer.domElement.addEventListener("wheel", onWheel, {passive: true,});
+		renderer.domElement.addEventListener("wheel", onWheel, { passive: true, });
 
 		/* --------------------------------------------------
 		 * 5. LOAD MODEL
 		 * -------------------------------------------------- */
 		const loader = new GLTFLoader();
 		loader.load(
-			"/models/school9.glb",
+			"/models/school12.glb",
 			(gltf) => {
 				const model = gltf.scene;
 				scene.add(model);
@@ -260,9 +383,10 @@ export default function Home() {
 
 				const planet = model.getObjectByName("Earth");
 				earth = model.getObjectByName("Earth");
+				button = model.getObjectByName("Button");
+				button_frame = model.getObjectByName("Button_Frame");
 
-				if (earth)
-				{
+				if (earth) {
 					const interactiveObjects = [
 						"Stadium",
 						"Photo",
@@ -270,6 +394,7 @@ export default function Home() {
 						"Cube3D",
 						"Toolbox",
 						"Game_of_life",
+						"Button",
 					];
 
 					for (const name of interactiveObjects) {
@@ -283,8 +408,7 @@ export default function Home() {
 					"Game_of_life"
 				) as THREE.Mesh;
 
-				if (gameOfLife)
-				{
+				if (gameOfLife) {
 					let geometry = gameOfLife.geometry as THREE.BufferGeometry;
 
 					// Garantit que chaque triangle possède 3 vertices indépendants
@@ -378,8 +502,7 @@ export default function Home() {
 
 		const animate = () => {
 			animationFrameId = requestAnimationFrame(animate);
-			if (earth)
-			{
+			if (earth) {
 				currentRotationY += (targetRotationY - currentRotationY) * 0.08;
 				earth.rotation.y = currentRotationY;
 			}
@@ -388,8 +511,7 @@ export default function Home() {
 				hoveredObject?.name === "Game_of_life" &&
 				gameOfLife &&
 				gameOfLifeColors
-			)
-			{
+			) {
 
 				const now = performance.now();
 
@@ -452,8 +574,7 @@ export default function Home() {
 				);
 			}
 
-			if (newHoveredObject !== hoveredObject)
-			{
+			if (newHoveredObject !== hoveredObject) {
 				hoveredObject = newHoveredObject;
 
 				outlinePass.selectedObjects =
@@ -505,7 +626,7 @@ export default function Home() {
 
 	return (
 		<div style={{ width: "100%", height: "100vh", backgroundColor: "#000" }} ref={mountRef}>
-		{/* Three.js canvas mounted ici */}
+			{/* Three.js canvas mounted ici */}
 		</div>
 	);
 }
