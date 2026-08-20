@@ -2,11 +2,17 @@
 
 ### Launch
 
+```bash
 npm run build:react
+```
 
+```bash
 npm run dev
+```
 
+```bash
 npm run build && npm run dev
+```
 
 ### To Do / Roadmap
 
